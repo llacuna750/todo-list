@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API_URL = "https://mindful-enchantment-production.up.railway.app/tasks";
+const API_URL = "todo-list-production-4d05.up.railway.app/tasks";
 
 function TodoList() {
     const [tasks, setTasks] = useState([]);
