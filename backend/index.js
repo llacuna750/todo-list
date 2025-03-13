@@ -17,10 +17,11 @@ app.use(express.json());
 // Your routes go here
 
 app.use(cors({
-    origin: 'https://llacuna750.github.io',  // Your GitHub Pages URL
+    origin: ['https://llacuna750.github.io', 'http://localhost:5173'],  // Allow both local and production
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));    
+}));
+  
 
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,
