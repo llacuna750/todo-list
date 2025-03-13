@@ -4,17 +4,6 @@ import './App.css';
 
 const API_URL = "https://todo-list-production-4d05.up.railway.app/tasks";
 
-useEffect(() => {
-  axios.get(API_URL)
-      .then((response) => {
-          setTasks(response.data);
-      })
-      .catch((error) => {
-          console.error("Error fetching tasks:", error);
-          alert("Failed to load tasks. Please try again later.");
-      });
-}, []);
-
 function TodoList() {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState('');
@@ -24,6 +13,18 @@ function TodoList() {
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('darkMode') === 'true';
     });
+
+    // 📝 Move the useEffect to fetch tasks here
+    useEffect(() => {
+        axios.get(API_URL)
+            .then((response) => {
+                setTasks(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching tasks:", error);
+                alert("Failed to load tasks. Please try again later.");
+            });
+    }, []);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark-mode', darkMode);
