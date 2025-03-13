@@ -33,12 +33,18 @@ db.connect((err) => {
 });
 
 // Get all tasks
-app.get("/api/tasks", (req, res) => {
-    db.query("SELECT * FROM tasks", (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
+app.get("/tasks", (req, res) => {
+  db.query("SELECT * FROM tasks", (err, results) => {
+    if (err) {
+      console.error("Error fetching tasks:", err);
+      res.status(500).json({ error: "Error fetching tasks" });
+      return;
+    }
+    console.log("Tasks retrieved:", results);
+    res.json(results);
+  });
 });
+
 
 // Add a new task
 app.post("/api/tasks", (req, res) => {
