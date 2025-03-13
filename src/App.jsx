@@ -2,7 +2,18 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API_URL = "todo-list-production-4d05.up.railway.app/tasks";
+const API_URL = "https://todo-list-production-4d05.up.railway.app/tasks";
+
+useEffect(() => {
+  axios.get(API_URL)
+      .then((response) => {
+          setTasks(response.data);
+      })
+      .catch((error) => {
+          console.error("Error fetching tasks:", error);
+          alert("Failed to load tasks. Please try again later.");
+      });
+}, []);
 
 function TodoList() {
     const [tasks, setTasks] = useState([]);
@@ -18,17 +29,6 @@ function TodoList() {
         document.documentElement.classList.toggle('dark-mode', darkMode);
         localStorage.setItem('darkMode', darkMode);
     }, [darkMode]);
-
-    // Fetch tasks from Railway backend
-    useEffect(() => {
-        axios.get(API_URL)
-            .then((response) => {
-                setTasks(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching tasks:", error);
-            });
-    }, []);
 
     // Add a new task
     const addTask = () => {

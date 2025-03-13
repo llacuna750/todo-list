@@ -1,3 +1,6 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,13 +10,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(cors({
-    origin: 'todo-list-production-4d05.up.railway.app', // You can replace '*' with your frontend URL for better security
-}));
+// app.use(cors({
+//     origin: 'https://todo-list-production-4d05.up.railway.app/', // You can replace '*' with your frontend URL for better security
+// }));
 
 // Your routes go here
 
-
+app.use(cors({
+    origin: 'https://llacuna750.github.io',  // Your GitHub Pages URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));    
 
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,
