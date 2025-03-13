@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import axios from 'axios';
-import './App.css';
-
-const API_URL = "https://mindful-enchantment-production.up.railway.app/tasks";
+import './index.css';
 
 function TodoList() {
     const [tasks, setTasks] = useState([]);
@@ -14,76 +12,58 @@ function TodoList() {
         return localStorage.getItem('darkMode') === 'true';
     });
 
+    // Fetch tasks from the backend
     useEffect(() => {
-        document.documentElement.classList.toggle('dark-mode', darkMode);
-        localStorage.setItem('darkMode', darkMode);
-    }, [darkMode]);
-
-    // Fetch tasks from Railway backend
-    useEffect(() => {
-        axios.get(API_URL)
-            .then((response) => {
-                setTasks(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching tasks:", error);
-            });
+        axios.get('https://mindful-enchantment-production.up.railway.app/tasks')
+            .then((response) => setTasks(response.data))
+            .catch((error) => console.error('Error fetching tasks:', error));
     }, []);
 
     // Add a new task
-    const addTask = () => {
+    const addTask = async () => {
         if (newTask.trim()) {
-            axios.post(API_URL, { text: newTask, completed: false })
-                .then((response) => {
-                    setTasks([...tasks, response.data]);
-                    setNewTask('');
-                })
-                .catch((error) => {
-                    console.error("Error adding task:", error);
+            try {
+                const response = await axios.post('https://mindful-enchantment-production.up.railway.app/tasks', {
+                    text: newTask,
+                    completed: false
                 });
+                setTasks([...tasks, response.data]);
+                setNewTask('');
+            } catch (error) {
+                console.error('Error adding task:', error);
+            }
         }
     };
 
     // Delete a task
-    const deleteTask = (id) => {
-        axios.delete(`${API_URL}/${id}`)
-            .then(() => {
-                setTasks(tasks.filter((task) => task.id !== id));
-            })
-            .catch((error) => {
-                console.error("Error deleting task:", error);
-            });
+    const deleteTask = async (index) => {
+        try {
+            await axios.delete(`https://mindful-enchantment-production.up.railway.app/tasks/${index}`);
+            setTasks(tasks.filter((_, i) => i !== index));
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
     };
 
     // Edit a task
-    const saveEdit = (id) => {
-        axios.put(`${API_URL}/${id}`, { text: editText })
-            .then(() => {
-                const updatedTasks = tasks.map((task) =>
-                    task.id === id ? { ...task, text: editText } : task
-                );
-                setTasks(updatedTasks);
-                setEditingIndex(null);
-                setEditText('');
-            })
-            .catch((error) => {
-                console.error("Error editing task:", error);
+    const saveEdit = async (index) => {
+        try {
+            await axios.put(`https://mindful-enchantment-production.up.railway.app/tasks/${index}`, {
+                text: editText
             });
+            const updatedTasks = [...tasks];
+            updatedTasks[index].text = editText;
+            setTasks(updatedTasks);
+            setEditingIndex(null);
+        } catch (error) {
+            console.error('Error updating task:', error);
+        }
     };
 
-    // Toggle completion status
-    const toggleCompletion = (id) => {
-        const task = tasks.find((t) => t.id === id);
-        axios.put(`${API_URL}/${id}`, { completed: !task.completed })
-            .then(() => {
-                const updatedTasks = tasks.map((t) =>
-                    t.id === id ? { ...t, completed: !t.completed } : t
-                );
-                setTasks(updatedTasks);
-            })
-            .catch((error) => {
-                console.error("Error toggling completion:", error);
-            });
+    const toggleCompletion = (index) => {
+        const updatedTasks = [...tasks];
+        updatedTasks[index].completed = !updatedTasks[index].completed;
+        setTasks(updatedTasks);
     };
 
     const filteredTasks = tasks.filter((task) => {
@@ -116,32 +96,29 @@ function TodoList() {
             </div>
 
             <ul className="task-list">
-                {filteredTasks.map((task) => (
-                    <li key={task.id} className="task-item">
+                {filteredTasks.map((task, index) => (
+                    <li key={index} className="task-item">
                         <input
                             type="checkbox"
                             checked={task.completed}
-                            onChange={() => toggleCompletion(task.id)}
+                            onChange={() => toggleCompletion(index)}
                         />
-                        {editingIndex === task.id ? (
+                        {editingIndex === index ? (
                             <>
                                 <input
                                     type="text"
                                     value={editText}
                                     onChange={(e) => setEditText(e.target.value)}
                                 />
-                                <button onClick={() => saveEdit(task.id)}>Save</button>
+                                <button onClick={() => saveEdit(index)}>Save</button>
                                 <button onClick={() => setEditingIndex(null)}>Cancel</button>
                             </>
                         ) : (
                             <>
                                 <span className="task-text">{task.text}</span>
                                 <div className="task-buttons">
-                                    <button onClick={() => {
-                                        setEditingIndex(task.id);
-                                        setEditText(task.text);
-                                    }}>Edit</button>
-                                    <button onClick={() => deleteTask(task.id)}>Delete</button>
+                                    <button className="edit-btn" onClick={() => setEditingIndex(index)}>Edit</button>
+                                    <button className="delete-btn" onClick={() => deleteTask(index)}>Delete</button>
                                 </div>
                             </>
                         )}
